@@ -137,6 +137,8 @@ class ASRProviderBase(ABC):
                 elif speaker_name != conn.conversation_owner:
                     logger.bind(tag=TAG).info(f"非对话主人语音已过滤: {speaker_name} (主人: {conn.conversation_owner})")
                     return
+                # 更新当前说话人供 LLM 上下文使用
+                conn.current_speaker = speaker_name
 
             # 判断 ASR 结果类型
             if isinstance(raw_text, dict):

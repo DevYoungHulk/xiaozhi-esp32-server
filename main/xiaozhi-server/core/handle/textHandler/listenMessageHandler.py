@@ -46,37 +46,50 @@ class ListenTextMessageHandler(TextMessageHandler):
                         await conn.asr.handle_voice_stop(conn, asr_audio_task)
         elif msg_json["state"] == "detect":
             conn.client_have_voice = False
+
+            # 每轮唤醒重置对话主人，重新识别
+            conn.conversation_owner = None
+
+            # 尝试用唤醒词音频做声纹识别（低阈值，短音频也能用）
+            if conn.voiceprint_provider and conn.voiceprint_provider.enabled and len(conn.asr_audio) > 0:
+                wake_word_audio = conn.asr_audio.copy()
+                try:
+                    pcm_data = conn.asr.decode_opus(wake_word_audio)
+                    combined_pcm = b"".join(pcm_data)
+                    if len(combined_pcm) > 0:
+                        wav_data = conn.asr._pcm_to_wav(combined_pcm)
+                        result = await conn.voiceprint_provider.identify_speaker(
+                            wav_data, conn.session_id, threshold=0.25
+                        )
+                        if result and result != "未知说话人":
+                            conn.conversation_owner = result
+                            conn.current_speaker = result
+                            conn.logger.bind(tag=TAG).info(f"唤醒词声纹锁定主人: {result}")
+                except Exception as e:
+                    conn.logger.bind(tag=TAG).warning(f"唤醒词声纹识别失败: {e}")
+
             conn.reset_audio_states()
             if "text" in msg_json:
                 conn.last_activity_time = time.time() * 1000
-                original_text = msg_json["text"]  # 保留原始文本
+                original_text = msg_json["text"]
                 filtered_len, filtered_text = remove_punctuation_and_length(
                     original_text
                 )
 
-                # 识别是否是唤醒词
                 is_wakeup_words = filtered_text in conn.config.get("wakeup_words")
-                # 是否开启唤醒词回复
                 enable_greeting = conn.config.get("enable_greeting", True)
 
                 if is_wakeup_words and not enable_greeting:
-                    # 如果是唤醒词，且关闭了唤醒词回复，就不用回答
                     await send_stt_message(conn, original_text)
                     await send_tts_message(conn, "stop", None)
                     conn.client_is_speaking = False
                 elif is_wakeup_words:
                     conn.just_woken_up = True
-                    # 个性化问候：有缓存的对话主人则带名字
                     owner = getattr(conn, "conversation_owner", None)
-                    if owner and owner != "未知说话人":
-                        greeting = f"{owner}，我在"
-                    else:
-                        greeting = "我在"
+                    greeting = f"{owner}，我在" if owner else "我在"
                     enqueue_asr_report(conn, greeting, [])
                     await startToChat(conn, greeting)
                 else:
                     conn.just_woken_up = True
-                    # 上报纯文字数据（复用ASR上报功能，但不提供音频数据）
                     enqueue_asr_report(conn, original_text, [])
-                    # 否则需要LLM对文字内容进行答复
                     await startToChat(conn, original_text)
