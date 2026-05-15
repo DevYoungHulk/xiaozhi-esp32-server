@@ -137,12 +137,14 @@ class VoiceprintProvider:
         
         return is_healthy
     
-    async def identify_speaker(self, audio_data: bytes, session_id: str) -> Optional[str]:
-        """识别说话人"""
+    async def identify_speaker(self, audio_data: bytes, session_id: str, threshold: float = None) -> Optional[str]:
+        """识别说话人，threshold 参数可覆盖全局阈值"""
         if not self.enabled or not self.api_url or not self.api_key:
             logger.bind(tag=TAG).debug("声纹识别功能已禁用或未配置，跳过识别")
             return None
-            
+
+        effective_threshold = threshold if threshold is not None else self.similarity_threshold
+
         try:
             api_start_time = time.monotonic()
             
@@ -172,8 +174,8 @@ class VoiceprintProvider:
                         logger.bind(tag=TAG).info(f"声纹识别耗时: {total_elapsed_time:.3f}s")
                         
                         # 相似度阈值检查
-                        if score < self.similarity_threshold:
-                            logger.bind(tag=TAG).warning(f"声纹识别相似度{score:.3f}低于阈值{self.similarity_threshold}")
+                        if score < effective_threshold:
+                            logger.bind(tag=TAG).warning(f"声纹识别相似度{score:.3f}低于阈值{effective_threshold}")
                             return "未知说话人"
                         
                         if speaker_id and speaker_id in self.speaker_map:

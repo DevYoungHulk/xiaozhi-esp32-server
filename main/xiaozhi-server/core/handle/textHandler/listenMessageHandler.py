@@ -66,9 +66,14 @@ class ListenTextMessageHandler(TextMessageHandler):
                     conn.client_is_speaking = False
                 elif is_wakeup_words:
                     conn.just_woken_up = True
-                    # 上报纯文字数据（复用ASR上报功能，但不提供音频数据）
-                    enqueue_asr_report(conn, "嘿，你好呀", [])
-                    await startToChat(conn, "嘿，你好呀")
+                    # 个性化问候：有缓存的对话主人则带名字
+                    owner = getattr(conn, "conversation_owner", None)
+                    if owner and owner != "未知说话人":
+                        greeting = f"{owner}，我在"
+                    else:
+                        greeting = "我在"
+                    enqueue_asr_report(conn, greeting, [])
+                    await startToChat(conn, greeting)
                 else:
                     conn.just_woken_up = True
                     # 上报纯文字数据（复用ASR上报功能，但不提供音频数据）

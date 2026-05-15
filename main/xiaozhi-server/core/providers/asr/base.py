@@ -129,6 +129,15 @@ class ASRProviderBase(ABC):
             else:
                 speaker_name = voiceprint_result
 
+            # 对话主人锁定与过滤
+            if speaker_name and speaker_name != "未知说话人":
+                if not hasattr(conn, "conversation_owner") or conn.conversation_owner is None:
+                    conn.conversation_owner = speaker_name
+                    logger.bind(tag=TAG).info(f"对话主人已锁定: {speaker_name}")
+                elif speaker_name != conn.conversation_owner:
+                    logger.bind(tag=TAG).info(f"非对话主人语音已过滤: {speaker_name} (主人: {conn.conversation_owner})")
+                    return
+
             # 判断 ASR 结果类型
             if isinstance(raw_text, dict):
                 # FunASR 返回的 dict 格式

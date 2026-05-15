@@ -13,6 +13,7 @@ logger = setup_logging()
 THINKING_DISABLED_DOMAINS = {
     "aliyuncs.com": {"enable_thinking": False},
     "bigmodel.cn": {"thinking": {"type": "disabled"}},
+    "deepseek.com": {"thinking": {"type": "disabled"}},
     "moonshot.cn": {"thinking": {"type": "disabled"}},
     "volces.com": {"thinking": {"type": "disabled"}},
 }
