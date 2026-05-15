@@ -59,7 +59,8 @@ class ListenTextMessageHandler(TextMessageHandler):
                     if len(combined_pcm) > 0:
                         wav_data = conn.asr._pcm_to_wav(combined_pcm)
                         result = await conn.voiceprint_provider.identify_speaker(
-                            wav_data, conn.session_id, threshold=0.25
+                            wav_data, conn.session_id,
+                            threshold=conn.voiceprint_provider.wake_word_threshold
                         )
                         if result and result != "未知说话人":
                             conn.conversation_owner = result

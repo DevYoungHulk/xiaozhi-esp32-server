@@ -19,8 +19,10 @@ class VoiceprintProvider:
         self.original_url = config.get("url", "")
         self.speakers = config.get("speakers", [])
         self.speaker_map = self._parse_speakers()
-        # 声纹识别相似度阈值，默认0.4
-        self.similarity_threshold = float(config.get("similarity_threshold", 0.4))
+        # 声纹识别相似度阈值，默认0.35（完整句子用）
+        self.similarity_threshold = float(config.get("similarity_threshold", 0.35))
+        # 唤醒词声纹阈值，默认0.25（短音频更宽松）
+        self.wake_word_threshold = float(config.get("wake_word_threshold", 0.25))
         
         # 解析API地址和密钥
         self.api_url = None
