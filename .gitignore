@@ -153,6 +153,7 @@ main/xiaozhi-server/.claude
 
 main/manager-web/node_modules
 .config.yaml
+!deploy/.config.yaml
 .secrets.yaml
 .private_config.yaml
 .env.development

@@ -53,6 +53,7 @@ class ListenTextMessageHandler(TextMessageHandler):
             # 尝试用唤醒词音频做声纹识别（低阈值，短音频也能用）
             if conn.voiceprint_provider and conn.voiceprint_provider.enabled and len(conn.asr_audio) > 0:
                 wake_word_audio = conn.asr_audio.copy()
+                conn.logger.bind(tag=TAG).info(f"🔊 唤醒词声纹验证: 音频{len(wake_word_audio)}帧, 阈值{conn.voiceprint_provider.wake_word_threshold}")
                 try:
                     pcm_data = conn.asr.decode_opus(wake_word_audio)
                     combined_pcm = b"".join(pcm_data)
@@ -65,9 +66,13 @@ class ListenTextMessageHandler(TextMessageHandler):
                         if result and result != "未知说话人":
                             conn.conversation_owner = result
                             conn.current_speaker = result
-                            conn.logger.bind(tag=TAG).info(f"唤醒词声纹锁定主人: {result}")
+                            conn.logger.bind(tag=TAG).info(f"✅ 唤醒词声纹锁定主人: {result}")
+                        else:
+                            conn.logger.bind(tag=TAG).info(f"❌ 唤醒词声纹未匹配: {result}")
                 except Exception as e:
                     conn.logger.bind(tag=TAG).warning(f"唤醒词声纹识别失败: {e}")
+            else:
+                conn.logger.bind(tag=TAG).info(f"⏭️ 唤醒词声纹跳过 (voiceprint={'enabled' if conn.voiceprint_provider and conn.voiceprint_provider.enabled else 'disabled'}, audio_frames={len(conn.asr_audio)})")
 
             conn.reset_audio_states()
             if "text" in msg_json:

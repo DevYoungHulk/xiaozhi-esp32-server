@@ -1,0 +1,36 @@
+# NAS 服务端 .config.yaml (部署时同步到 /vol1/1000/Docker/xiaozhi-server/data/.config.yaml)
+# 与智控台并行生效，优先级: 智控台 > .config.yaml > config.yaml
+
+server:
+  ip: 0.0.0.0
+  port: 8000
+  http_port: 8003
+  vision_explain: http://你的ip或者域名:端口号/mcp/vision/explain
+
+manager-api:
+  url: http://xiaozhi-esp32-server-web:8002/xiaozhi
+  secret: 506a663f-3962-4fe4-82cd-88055f7d2754
+
+prompt_template: agent-base-prompt.txt
+
+# === 声纹识别配置 ===
+voiceprint:
+  url: http://192.168.100.4:8006/voiceprint/health?key=9c78a59f-cf00-44df-a27f-2202d4a885db
+  similarity_threshold: 0.35
+  wake_word_threshold: 0.25
+  speakers:
+    - 131445efa74fcfc0298c423cdcf2f6d2,浩,程序员，糖糖爸爸，技术宅
+    - d8342c3d66434ac5c4fa3079b867e0cc,灿灿,糖糖妈妈，厨神
+
+# === ASR 模型 ===
+FunASR:
+  model_dir: models/speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch
+
+# === VAD 优化 ===
+# threshold: 语音检测灵敏度 0~1，越低越灵敏，轻声更容易检测到
+# min_silence_duration_ms: 连续静音多久(ms)判为断句，越大越不容易误断句
+VAD:
+  SileroVAD:
+    threshold: 0.4
+    threshold_low: 0.25
+    min_silence_duration_ms: 300

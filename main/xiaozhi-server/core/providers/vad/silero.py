@@ -12,7 +12,7 @@ logger = setup_logging()
 
 class VADProvider(VADProviderBase):
     def __init__(self, config):
-        logger.bind(tag=TAG).info("SileroVAD", config)
+        logger.bind(tag=TAG).info(f"SileroVAD threshold={config.get('threshold','0.5')} threshold_low={config.get('threshold_low','0.3')} min_silence_duration_ms={config.get('min_silence_duration_ms','200')}")
 
         model_path = os.path.join(
             config["model_dir"], "src", "silero_vad", "data", "silero_vad.onnx"
