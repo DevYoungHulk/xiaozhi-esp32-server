@@ -90,10 +90,6 @@ async def get_config_from_api_async(config):
     # 如果服务器没有prompt_template，则从本地配置读取
     if not config_data.get("prompt_template"):
         config_data["prompt_template"] = config.get("prompt_template")
-    # 本地 .config.yaml 的模块配置优先级高于智控台默认值 (deep merge)
-    for section in ("VAD", "ASR", "FunASR"):
-        if config.get(section) and config_data.get(section):
-            config_data[section] = merge_configs(config_data[section], config[section])
     return config_data
 
 

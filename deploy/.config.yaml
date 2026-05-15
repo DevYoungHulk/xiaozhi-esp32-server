@@ -1,5 +1,6 @@
 # NAS 服务端 .config.yaml (部署时同步到 /vol1/1000/Docker/xiaozhi-server/data/.config.yaml)
-# 与智控台并行生效，优先级: 智控台 > .config.yaml > config.yaml
+# 优先级: 智控台 > .config.yaml > config.yaml
+# 以下配置项中，标注"智控台管理"的由 Web 面板控制，本地修改无效，需在智控台页面修改
 
 server:
   ip: 0.0.0.0
@@ -13,7 +14,7 @@ manager-api:
 
 prompt_template: agent-base-prompt.txt
 
-# === 声纹识别配置 ===
+# === 声纹识别配置 (智控台管理) ===
 voiceprint:
   url: http://192.168.100.4:8006/voiceprint/health?key=9c78a59f-cf00-44df-a27f-2202d4a885db
   similarity_threshold: 0.35
@@ -22,15 +23,10 @@ voiceprint:
     - 131445efa74fcfc0298c423cdcf2f6d2,浩,程序员，糖糖爸爸，技术宅
     - d8342c3d66434ac5c4fa3079b867e0cc,灿灿,糖糖妈妈，厨神
 
-# === ASR 模型 ===
+# === ASR 模型 (智控台管理) ===
 FunASR:
   model_dir: models/speech_paraformer-large_asr_nat-zh-cn-16k-common-vocab8404-pytorch
 
-# === VAD 优化 ===
-# threshold: 语音检测灵敏度 0~1，越低越灵敏，轻声更容易检测到
-# min_silence_duration_ms: 连续静音多久(ms)判为断句，越大越不容易误断句
-VAD:
-  SileroVAD:
-    threshold: 0.4
-    threshold_low: 0.25
-    min_silence_duration_ms: 300
+# === VAD 配置 (智控台管理，详见 docs/web-panel-config.md) ===
+
+# === SileroVAD 当前值: threshold=0.5, min_silence_duration_ms=700 ===
