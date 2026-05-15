@@ -84,9 +84,14 @@ class ASRProvider(ASRProviderBase):
                     use_itn=True,
                     batch_size_s=60,
                 )
-                text = lang_tag_filter(result[0]["text"])
+                raw = lang_tag_filter(result[0]["text"])
+                # Paraformer-large 返回纯文本，SenseVoiceSmall 返回带语言/情绪标签的 dict
+                if isinstance(raw, str):
+                    text = {"content": raw}
+                else:
+                    text = raw
                 logger.bind(tag=TAG).debug(
-                    f"语音识别耗时: {time.time() - start_time:.3f}s | 结果: {text['content']}"
+                    f"语音识别耗时: {time.time() - start_time:.3f}s | 结果: {text.get('content', text)}"
                 )
 
                 return text, artifacts.file_path
