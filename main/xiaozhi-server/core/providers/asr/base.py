@@ -139,6 +139,10 @@ class ASRProviderBase(ABC):
                     return
                 # 更新当前说话人供 LLM 上下文使用
                 conn.current_speaker = speaker_name
+            elif hasattr(conn, "conversation_owner") and conn.conversation_owner is not None:
+                # 主人已锁定但声纹未识别，可能是非主人，过滤
+                logger.bind(tag=TAG).info(f"声纹未识别，非主人语音已过滤 (主人: {conn.conversation_owner})")
+                return
 
             # 判断 ASR 结果类型
             if isinstance(raw_text, dict):
