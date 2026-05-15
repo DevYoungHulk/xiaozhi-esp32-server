@@ -760,6 +760,9 @@ class ConnectionHandler:
         # 获取声纹信息
         if private_config.get("voiceprint", None) is not None:
             self.config["voiceprint"] = private_config["voiceprint"]
+        # server 级 wake_word_threshold 注入到 voiceprint 配置
+        if private_config.get("wake_word_threshold") is not None:
+            self.config.setdefault("voiceprint", {})["wake_word_threshold"] = private_config["wake_word_threshold"]
         if private_config.get("summaryMemory", None) is not None:
             self.config["summaryMemory"] = private_config["summaryMemory"]
         if private_config.get("device_max_output_size", None) is not None:
