@@ -1,0 +1,8 @@
+mysql:
+  host: "xiaozhi-esp32-server-db"
+  port: 3306
+  user: "root"
+  password: "123456"
+  database: "voiceprint_db"
+server:
+  authorization: "9c78a59f-cf00-44df-a27f-2202d4a885db"
