@@ -35,7 +35,8 @@ FunASR:
 VAD:
   SileroVAD:
     threshold: 0.4
-    min_silence_duration_ms: 300
+    threshold_low: 0.2
+    min_silence_duration_ms: 400
 
 # === 🖥️ 智控台: TTS 配置 ===
 # 修改路径: 参数管理 → 搜索 TTS → 展开 EdgeTTS
